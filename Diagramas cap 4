@@ -1,1 +1,122 @@
+1
+@startuml
+skinparam classAttributeIconSize 0
 
+class Usuario {
+  - id: int
+  - tipoDocumento: String
+  - numeroDocumento: String
+  - medioContacto: String
+  + iniciarSesion(): boolean
+  + verificarCodigo(): boolean
+}
+
+class Ciudadano {
+  + registrarParticipacion()
+  + consultarEstado()
+}
+
+class Funcionario {
+  - areaInstitucional: String
+  + actualizarEstado()
+  + registrarRespuesta()
+  + clasificarParticipacion()
+}
+
+class PersonalDefensoria {
+  + supervisarCasos()
+}
+
+class Participacion {
+  - id: int
+  - titulo: String
+  - descripcion: String
+  - fechaCreacion: Date
+  - estado: String
+  + cambiarEstado()
+  + obtenerDetalle()
+}
+
+class Denuncia {
+}
+
+class Propuesta {
+}
+
+class Categoria {
+  - id: int
+  - nombre: String
+}
+
+class Notificacion {
+  - id: int
+  - mensaje: String
+  - fecha: Date
+  + enviarNotificacion()
+}
+
+class Respuesta {
+  - id: int
+  - texto: String
+  - fecha: Date
+}
+
+Usuario <|-- Ciudadano
+Usuario <|-- Funcionario
+Usuario <|-- PersonalDefensoria
+
+Participacion <|-- Denuncia
+Participacion <|-- Propuesta
+
+Ciudadano "1" -- "*" Participacion : registra >
+Funcionario "1" -- "*" Participacion : atiende >
+Participacion "*" -- "1" Categoria : pertenece a >
+Participacion "1" -- "*" Notificacion : genera >
+Participacion "1" -- "*" Respuesta : tiene >
+@enduml
+
+
+
+
+
+
+
+2
+
+
+@startuml
+actor Ciudadano
+participant "Interfaz de la\nPlataforma" as Interfaz
+participant "Controlador de\nDenuncias" as Controlador
+database "Base de\nDatos" as BD
+
+Ciudadano -> Interfaz : 1. Ingresar datos de denuncia
+activate Interfaz
+
+Interfaz -> Controlador : 2. Enviar(datosDenuncia)
+activate Controlador
+
+Controlador -> BD : 3. Guardar(datosDenuncia, estado="Registrada")
+activate BD
+
+BD --> Controlador : 4. Confirmación de guardado
+deactivate BD
+
+Controlador --> Interfaz : 5. Mensaje de éxito
+
+Interfaz --> Ciudadano : 6. Mostrar confirmación de registro
+deactivate Interfaz
+
+== Actualización de Estado y Seguimiento ==
+
+note over Controlador : El funcionario municipal \nactualiza el caso en el sistema
+
+Controlador -> BD : 7. ActualizarEstado(nuevoEstado)
+activate BD
+
+BD --> Controlador : 8. Confirmación de actualización
+deactivate BD
+
+Controlador -> Ciudadano : 9. Enviar notificación(Cambio de estado)
+deactivate Controlador
+@enduml
